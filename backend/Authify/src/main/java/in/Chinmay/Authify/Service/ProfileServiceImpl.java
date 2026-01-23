@@ -6,6 +6,7 @@ import in.Chinmay.Authify.Model.UserEntity;
 import in.Chinmay.Authify.Repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
     private final UserEntityRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     @Override
     public ProfileResponse createProfile(ProfileRequest request) {
         UserEntity newProfile=convertToUserEntity(request);
@@ -40,7 +42,7 @@ public class ProfileServiceImpl implements ProfileService {
             return UserEntity.builder()
                     .userId(UUID.randomUUID().toString())
                     .name(request.getName())
-                    .password(request.getPassword())
+                    .password(passwordEncoder.encode(request.getPassword()))
                     .email(request.getEmail())
                     .verifyOtp(null)
                     .isAccountVerified(false)
