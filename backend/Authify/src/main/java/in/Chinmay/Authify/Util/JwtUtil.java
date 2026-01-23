@@ -1,6 +1,7 @@
 package in.Chinmay.Authify.Util;
 
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Component
 public class JwtUtil {
@@ -48,4 +50,33 @@ public class JwtUtil {
                     .signWith(SignatureAlgorithm.HS256,secretKey)
                     .compact();
     }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+    }
+
+    private <T> T extractClaim(String token, Function<Claims,T> claimResolver){
+        final Claims claims=extractAllClaims(token);
+        return claimResolver.apply(claims);
+    }
+
+    public String extractEmail(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    private Date extractExpiration(String token){
+        return extractClaim(token,Claims::getExpiration);
+    }
+
+    private Boolean isTokenExperied (String token){
+        return extractExpiration(token).before(new Date());
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails){
+
+        final String email= extractEmail(token);
+        return (email.equals(userDetails.getUsername())&&!isTokenExperied(token));
+    }
+
 }
