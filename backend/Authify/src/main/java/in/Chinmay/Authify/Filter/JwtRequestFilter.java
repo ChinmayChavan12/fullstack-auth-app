@@ -30,11 +30,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String path=request.getServletPath();
-        if(PUBLIC_URLS.contains(path)){
-            filterChain.doFilter(request,response);
+        String path = request.getServletPath();
+        boolean isPublic = PUBLIC_URLS.stream().anyMatch(path::startsWith);
+        if (isPublic) {
+            filterChain.doFilter(request, response);
             return;
         }
+
 
         String jwt=null;
         String email=null;
@@ -48,7 +50,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             Cookie[]cookies=request.getCookies();
             if(cookies!=null){
                 for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("jwt")) {
+                    if ("jwt".equals(cookie.getName())) {
                         jwt=cookie.getValue();
                         break;
                     }
