@@ -6,6 +6,7 @@ import in.Chinmay.Authify.IO.ResetPasswordRequest;
 import in.Chinmay.Authify.Service.AppUserDetailsService;
 import in.Chinmay.Authify.Service.ProfileService;
 import in.Chinmay.Authify.Util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -126,6 +127,18 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "OTP verification failed");
         }
     }
+        @PostMapping("/logout")
+        public ResponseEntity<?> logout (HttpServletRequest request) {
 
+            ResponseCookie cookie = ResponseCookie.from("jwt","")
+                    .maxAge(0)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .sameSite("Strict").build();
+
+
+                return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE.toString()).body("Loggout out Successfully");
+        }
 
 }
