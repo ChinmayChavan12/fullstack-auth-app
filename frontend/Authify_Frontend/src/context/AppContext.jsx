@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import {AppConstants} from "../util/constants"
 import { toast } from 'react-toastify';
 import axios from "axios"
@@ -23,6 +23,32 @@ export const AppContextProvider=(props)=>{
             toast.error(err.message)
         }
     }
+    const getAuthState=async ()=>{
+        try{
+            axios.defaults.withCredentials=true
+            const response = await axios.get(backendURL+"/is-authenticated")
+            
+            if(response.status===200&& response.data===true){
+                setIsLoggedIn(true)
+                 await getUserData();
+            }else{
+                setIsLoggedIn(false)
+            }
+       
+        }catch(err){
+            if(err.response){
+                const msg=err.response.data?.message||"Atuhentication check failed"
+                toast.error(msg)
+            }else{
+                toast.error(err.message)
+            }
+            setIsLoggedIn(false)
+        }
+    }
+    useEffect(() => {
+      getAuthState()
+    }, [])
+    
     const contextValue={
         backendURL,
         isloggedIn,setIsLoggedIn,

@@ -138,7 +138,7 @@ public class AuthController {
                     .sameSite("Strict").build();
 
 
-                return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE.toString()).body("Loggout out Successfully");
+                return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE.toString()).body("Logout out Successfully");
         }
 
 }
